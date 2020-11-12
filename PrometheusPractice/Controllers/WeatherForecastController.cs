@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Prometheus.Client.Abstractions;
 
 namespace PrometheusPractice.Controllers
 {
@@ -17,15 +18,19 @@ namespace PrometheusPractice.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ICounter _counter;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IMetricFactory metricFactory)
         {
             _logger = logger;
+            _counter = metricFactory.CreateCounter("my_counter", "my_test");
         }
 
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
+            _counter.Inc();
+
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
